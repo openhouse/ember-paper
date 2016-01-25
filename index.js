@@ -100,7 +100,10 @@ module.exports = {
       'components/backdrop/backdrop-theme.scss',
 
       'components/dialog/dialog.scss',
-      'components/dialog/dialog-theme.scss'
+      'components/dialog/dialog-theme.scss',
+
+      'components/chips/chips.scss',
+      'components/chips/chips-theme.scss',
     ];
 
     var pathBase = this.project.addonPackages['ember-paper'].path;
