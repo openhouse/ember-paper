@@ -217,7 +217,7 @@ export default Ember.Component.extend(HasBlockMixin, {
   shouldHide: Ember.computed.not('isMinLengthMet'),
 
   isMinLengthMet: Ember.computed('searchText', 'minLength', function() {
-    return this.get('searchText').length >= this.get('minLength');
+    return this.get('searchText.length') >= this.get('minLength');
   }),
 
   /*
