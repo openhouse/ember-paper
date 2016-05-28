@@ -9,12 +9,24 @@ Version 1.0 introduces many API changes relative to previous releases. In additi
 Contributions and pull requests are always welcome. Contributors may often be found on the slack.com #e-paper channel. Building the dummy application by installing `ember-paper` as if it were an application will provide you an up-to-date interactive demo, templates, and code samples.
 
 - Attributes are now `camelCased` rather than `kebob-cased`.
-- Components which accept user input, such as `paper-input`, `paper-checkbox`, and `paper-select` now receive their input via the one-way `value` attribute and notify of a changed value by the `onChange` actions.
+- Components which accept user input, such as `paper-input`, `paper-checkbox`, `paper-switch` and `paper-select` now receive their input via the one-way `value` attribute and notify of a changed value by the `onChange` actions.
 - When provided by the API, `onChange` actions are required and throw an assertion if not provided.
 - Actions maybe be specified by a string action name (`onChange="updateValue"`) or an action closure (`onChange=(action (mut "myValue"))`). If you need to specify a target or additional parameter, you must use an action closure.
 - Many attributes have been renamed for clarity and consistency. See the specific changes below.
+- `paper-icon`'s `size` attribute now takes a size in pixels, and `lg` or `sm` values are no longer supported.
 
-#### 1.0.0 specific changes
+#### 1.0.0-alpha.2
+
+#### 1.0.0-alpha.1
+
+- [#365](https://github.com/miguelcobain/ember-paper/pull/365) paper-button: Support for `fab` and `mini`.
+- [#362](https://github.com/miguelcobain/ember-paper/pull/362) paper-toolbar: Support for `tall`.
+- [#364](https://github.com/miguelcobain/ember-paper/pull/364) Support installation via both npm versions 2 and 3.
+- [#367](https://github.com/miguelcobain/ember-paper/pull/367) You should now use `paper-toolbar-tools` component (or respective contextual component) instead of the `md-toolbar-tools` class.
+- [#370](https://github.com/miguelcobain/ember-paper/pull/370) `paper-icon` now once again supports kebab cased icon names, and a `size` in pixels.
+- [#372](https://github.com/miguelcobain/ember-paper/pull/372) `paper-button` can generate `a` link elements, with an href and optional target attribute.
+
+#### 1.0.0-alpha.0
 - [1a9b641](https://github.com/miguelcobain/ember-paper/commit/1a9b6411a8ca30f3e9440d8585dc0f1ff4ff7649) paper-progress-circular now uses `diameter` instead of `md-diameter`
 - [cf2a8da](https://github.com/miguelcobain/ember-paper/commit/cf2a8da350ea805e11eef36914ae76213b4c9f24) paper-progress-linear now uses `bufferValue` instead of `buffer-value`
 - [#285](https://github.com/miguelcobain/ember-paper/pull/285) paper-checkbox now uses *actions up, data down*. `onChange` action is mandatory.
@@ -43,6 +55,29 @@ Contributions and pull requests are always welcome. Contributors may often be fo
   - paper-select now uses attribute `itemLabelCallback` instead of `item-label-callback`.
   - paper-select now uses attribute `getItems` instead of `on-open`.
   - paper-menu now uses attribute `isOpen` instead of `is-open`.
+- [#338](https://github.com/miguelcobain/ember-paper/pull/338)
+  - paper-card now uses contextual components. The old paper-card-content and paper-card-title components still work.
+  - paper-card now supports the same configurations as the [Angular Material](https://material.angularjs.org/1.0.6/demo/card) version.
+- Updated the dependency on hammer from `hammerjs` to `hammer.js` . (Also backported to 0.2.14.)
+  - Update your project's `bower.json` to require `"hammer.js": "^2.0.8"`. Remove `bower_components/hammerjs`. Run `bower cache clean`, then `bower install`.
+- [5521f3b](https://github.com/miguelcobain/ember-paper/commit/5521f3b246be4c24cd54f5e0b5383fc9e78e24dd ) Validation status on `paper-input` is exposed via `onInvalid` action.
+
+### 0.2.14
+
+  - Updated the dependency on Hammer.js from `hammerjs` to `hammer.js`.
+  - Update your project's `bower.json` to require `"hammer.js": "^2.0.8"`. Remove `bower_components/hammerjs`. Run `bower cache clean`, then `bower install`.
+
+### 0.2.13
+
+- [#322](https://github.com/miguelcobain/ember-paper/pull/322) Remove documentation for searchTest in inverse block for `{{paper-autocomplete}}`.
+- [#323](https://github.com/miguelcobain/ember-paper/pull/323) Pass item through as expected rather than label to itemComponent for `{{paper-autocomplete}}`.
+- [#347](https://github.com/miguelcobain/ember-paper/pull/347) Don't import Hammer or matchMedia when building in node (FastBoot support)
+
+### 0.2.12
+
+- [#307](https://github.com/miguelcobain/ember-paper/pull/307) Add paper-card title components
+- [#283](https://github.com/miguelcobain/ember-paper/pull/283) Adds support for `fullTextSearch` attribute on `{{paper-autocomplete}}`. Enables passing Promises to the `model` attribute on `{{paper-autocomplete}}`. Docs updated.
+- [#311](https://github.com/miguelcobain/ember-paper/pull/311) Fixed issue with `paper-wormhole` div in `<head>` tag.
 
 ### 0.2.11
 

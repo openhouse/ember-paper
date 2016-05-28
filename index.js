@@ -13,8 +13,11 @@ module.exports = {
   included: function(app) {
     this._super.included(app);
 
-    app.import(app.bowerDirectory + '/hammerjs/hammer.js');
-    app.import(app.bowerDirectory + '/matchMedia/matchMedia.js');
+    if (!process.env.EMBER_CLI_FASTBOOT) {
+      app.import(app.bowerDirectory + '/hammer.js/hammer.js')
+      app.import(app.bowerDirectory + '/matchMedia/matchMedia.js');
+    };
+
     app.import('vendor/propagating.js');
   },
 
@@ -106,10 +109,19 @@ module.exports = {
       'components/chips/chips-theme.scss',
     ];
 
-    var pathBase = this.project.addonPackages['ember-paper'].path;
-    var angularMaterialPath =  'node_modules/angular-material-source/src';
+    /*
+      Find the angular-material-source module in a manner that works for npm 2.x
+      and 3.x in both the addon itself and projects that depend on this addon
 
-    var angularScssFiles = new Funnel(path.join(pathBase,angularMaterialPath), {
+      This is an edge case b/c angular-material-source does not have a main
+      module we can require.resolve through node itself and similarily ember-cli
+      does not have such a hack for the same reason.
+
+      tl;dr - We want the non built scss files, and b/c this dep is only provided via
+      bower, we use this hack. Please change it if you read this and know a better way.
+    */
+    var pathBase = path.resolve(this.nodeModulesPath, 'angular-material-source', 'src')
+    var angularScssFiles = new Funnel(pathBase, {
       files: scssFiles,
       destDir: 'angular-material',
       annotation: 'AngularScssFunnel'

@@ -25,13 +25,15 @@ export default BaseFocusable.extend(RippleMixin, ProxiableMixin, ColorMixin, {
 
   didInitAttrs() {
     this._super(...arguments);
-    assert('{{paper-checkbox}} requires an `onChange` action', !!this.get('onChange'));
+    assert('{{paper-checkbox}} requires an `onChange` action or null for no action.', this.get('onChange') !== undefined);
   },
 
   click() {
     if (!this.get('disabled')) {
       this.sendAction('onChange', !this.get('value'));
     }
+    // Prevent bubbling, if specified. If undefined, the event will bubble.
+    return this.get('bubbles');
   },
 
   keyPress(ev) {

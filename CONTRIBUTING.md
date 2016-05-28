@@ -11,6 +11,7 @@ Many ember-paper contributors hang out on the [e-paper channel on slack](https:/
 * **jscs.** Before submitting a pull request,
 check for coding style issues with  `jscs -c .jscsrc app addon`.
 
+* **Comments.** Include block-style (`/**`) comments before  functions with a non-trivial or non-obvious purpose. Include line-style (`//`) comments wherever code might not be obvious to a future contributor, years later, without your knowledge of the functioning of the code. If an intermediate-level Ember developer will wonder why something works, explain it.
 * **Actions.** Accept action closures rather than strings representing action names.
 `{{some-component someAction=(action "myAction")}}`, not `{{some-component someAction="myAction" param="the stuff" target=someTarget}}`. Invoke the action with `this.sendAction('onWhatever');`. There is no need to test for the presence of `onWhatever` as `sendAction` handles that situation.
 
@@ -32,6 +33,15 @@ For example, `ember-paper-inner` is a private component:
 
  * As required by Ember, component names, module names, and file names should continue to be kebab-cased, such as
 `{{paper-input}}` and the filepath `ember-paper/addon/components/paper-input.js`.
+
+* **Optional template attributes**
+
+  * When attributes may be included in a template invocation to control optional behavior, define reasonable defaults in the invoked component's `.js` file. For example:
+```
+someOption: false,
+classNameBindings: ["someOption:md-some-option"],
+```
+This makes the usage clear to both future maintainers and developer-users who may read the code.
 
 * **Importing**
 
@@ -74,3 +84,22 @@ becomes
 `<md-some-element>` should be implemented as an ember component, such as `{{paper-some-element}}`.
 
 * **Features.** Seek to provide feature parity using Angular Material styles, but implemented in an Ember-centric way.
+
+## Building and deploying the dummy app to github
+
+If needed, update `ember-cli-github-pages` to version `0.0.9` or later, or the latest master of `0.0.8`. This version supports the `destination` option.
+
+1. In the `master` branch, ensure that the version number in `package.json` reflects the current changes and CHANGELOG.md. If needed, bump the version number, commit, and make a git tag for the release.
+
+2. Build the `master` branch:
+```bash
+checkout master
+mkdir release-1 # if the directory does not already exist
+ember github-pages:commit --message "Publish gh-pages for v1.0.0-alpha.0" --destination "release-1"
+```
+
+3. If the `0.2` branch needs building, repeat step 2 for `release-0-2`.
+
+4. Checkout branch `gh-pages` and confirm that you are satisfied.
+
+5. Push `gh-pages` to github.

@@ -3,9 +3,11 @@ import BaseFocusable from './base-focusable';
 import RippleMixin from 'ember-paper/mixins/ripple-mixin';
 import ProxiableMixin from 'ember-paper/mixins/proxiable-mixin';
 import ColorMixin from 'ember-paper/mixins/color-mixin';
+
 const {
   assert,
   computed,
+  get,
   run,
   String: {
     htmlSafe
@@ -19,6 +21,7 @@ export default BaseFocusable.extend(RippleMixin, ProxiableMixin, ColorMixin, {
   classNames: ['paper-switch', 'md-default-theme'],
   classNameBindings: ['value:md-checked', 'dragging:md-dragging'],
   toggle: true,
+  constants: inject.service(),
 
   /* Ripple Overrides */
   rippleContainerSelector: '.md-thumb',
@@ -29,8 +32,6 @@ export default BaseFocusable.extend(RippleMixin, ProxiableMixin, ColorMixin, {
   value: false,
   disabled: false,
   dragging: false,
-
-  constants: inject.service(),
 
   thumbContainerStyle: computed('dragging', 'dragAmount', function() {
     if (!this.get('dragging')) {
@@ -53,7 +54,7 @@ export default BaseFocusable.extend(RippleMixin, ProxiableMixin, ColorMixin, {
 
   didInitAttrs() {
     this._super(...arguments);
-    assert('{{paper-switch}} requires an `onChange` action', !!this.get('onChange'));
+    assert('{{paper-switch}} requires an `onChange` action or null for no action.', this.get('onChange') !== undefined);
   },
 
   willDestroyElement() {
@@ -74,20 +75,26 @@ export default BaseFocusable.extend(RippleMixin, ProxiableMixin, ColorMixin, {
   },
 
   _setupSwitch() {
-    this.set('switchWidth', this.$('.md-bar').width());
+    this.set('switchWidth', this.$('.md-thumb-container').innerWidth());
 
-    // Enable dragging the switch
     let switchContainer = this.$('.md-container').get(0);
-    let switchContainerHammer = new Hammer(switchContainer);
-    this._switchContainerHammer = switchContainerHammer;
-    switchContainerHammer.get('pan').set({ threshold: 1 });
-    switchContainerHammer.on('panstart', run.bind(this, this._dragStart));
-    switchContainerHammer.on('panmove', run.bind(this, this._drag));
-    switchContainerHammer.on('panend', run.bind(this, this._dragEnd));
+    let switchHammer = new Hammer(switchContainer);
+    this._switchContainerHammer = switchHammer;
 
-    let switchHammer = new Hammer(this.element);
-    this._switchHammer = switchHammer;
-    switchHammer.on('tap', run.bind(this, this._dragEnd));
+    // Enable dragging the switch container
+    switchHammer.get('pan').set({ threshold: 1 });
+    switchHammer.on('panstart', run.bind(this, this._dragStart))
+      .on('panmove', run.bind(this, this._drag))
+      .on('panend', run.bind(this, this._dragEnd));
+
+    // Enable tapping gesture on the switch
+    this._switchHammer = new Hammer(this.element);
+    this._switchHammer.on('tap', run.bind(this, this._dragEnd));
+    this.$('.md-container').on('click', run.bind(this, this._handleNativeClick));
+  },
+
+  _handleNativeClick() {
+    return get(this, 'bubbles');
   },
 
   _teardownSwitch() {
@@ -119,6 +126,13 @@ export default BaseFocusable.extend(RippleMixin, ProxiableMixin, ColorMixin, {
       }
       this.set('dragging', false);
       this.set('dragAmount', null);
+    }
+  },
+
+  focusIn() {
+    // Focusing in w/o being pressed should use the default behavior
+    if (!this.get('pressed')) {
+      this._super(...arguments);
     }
   },
 

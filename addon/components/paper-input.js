@@ -27,6 +27,7 @@ export default BaseFocusable.extend(ColorMixin, FlexMixin, {
   tabindex: null,
   hideAllMessages: false,
   isTouched: false,
+  lastIsInvalid: undefined,
 
   hasValue: computed('value', 'isNativeInvalid', function() {
     let value = this.get('value');
@@ -38,8 +39,21 @@ export default BaseFocusable.extend(ColorMixin, FlexMixin, {
     return `input-${this.get('elementId')}`;
   }),
 
+  /**
+   * The result of isInvalid is appropriate for controlling the display of
+   * validation error messages. It also may be used to distinguish whether
+   * the input would be considered valid after it is touched.
+   *
+   * @public
+   *
+   * @return {boolean|null} Whether the input is or would be invalid.
+   *    null: input has not yet been touched, but would be invalid if it were
+   *    false: input is valid (touched or not), or is no longer rendered
+   *    true: input has been touched and is invalid.
+   */
   isInvalid: computed('isTouched', 'validationErrorMessages.length', 'isNativeInvalid', function() {
-    return this.get('isTouched') && (this.get('validationErrorMessages.length') || this.get('isNativeInvalid'));
+    let isInvalid = this.get('validationErrorMessages.length') || this.get('isNativeInvalid');
+    return isInvalid && !this.get('isTouched') ? null : !!isInvalid;
   }),
 
   renderCharCount: computed('value', function() {
@@ -119,7 +133,8 @@ export default BaseFocusable.extend(ColorMixin, FlexMixin, {
   // Lifecycle hooks
   didReceiveAttrs() {
     this._super(...arguments);
-    assert('{{paper-input}} and {{paper-select}} require an `onChange` action.', !!this.get('onChange'));
+    assert('{{paper-input}} and {{paper-select}} require an `onChange` action or null for no action.', this.get('onChange') !== undefined);
+    this.notifyInvalid();
   },
 
   didInsertElement() {
@@ -131,6 +146,10 @@ export default BaseFocusable.extend(ColorMixin, FlexMixin, {
 
   didRender() {
     this.growTextarea();
+  },
+
+  willClearRender() {
+    this.sendAction('onInvalid', false);
   },
 
   willDestroyElement() {
@@ -179,17 +198,27 @@ export default BaseFocusable.extend(ColorMixin, FlexMixin, {
     return offsetHeight + (line > 0 ? line : 0);
   },
 
+  notifyInvalid() {
+    let isInvalid = this.get('isInvalid');
+    if (this.get('lastIsInvalid') !== isInvalid) {
+      this.sendAction('onInvalid', this.get('isInvalid'));
+      this.set('lastIsInvalid', this.get('isInvalid'));
+    }
+  },
+
   actions: {
     handleInput(e) {
       this.sendAction('onChange', e.target.value);
       this.growTextarea();
       let inputElement = this.$('input').get(0);
       this.set('isNativeInvalid', inputElement && inputElement.validity && inputElement.validity.badInput);
+      this.notifyInvalid();
     },
 
     handleBlur(e) {
       this.sendAction('onBlur', e);
       this.set('isTouched', true);
+      this.notifyInvalid();
     }
   }
 });
